@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candy Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&family=Rock+Salt&display=swap" rel="stylesheet">
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, #d80032, #ff4b5c);
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        h1 {
+            font-family: 'Rock Salt', cursive;
+            font-size: 50px;
+            text-shadow: 3px 3px 5px rgba(0,0,0,0.7);
+            margin-top: 20px;
+        }
+        p {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px;
+        }
+        #candy {
+            width: 120px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #candy:active {
+            transform: scale(1.1);
+        }
+        #score {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        .button {
+            background-color: #ffcc00;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: 0.3s;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .button:hover {
+            background-color: #ff9900;
+            transform: scale(1.05);
+        }
+        .button:active {
+            transform: scale(1.1);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .shop-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .shop-item {
+            margin: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+        }
+        .cool-font {
+            font-family: 'Rock Salt', cursive;
+            color: #fff;
+            text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
+        }
+        .shop-section {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Candy Clicker</h1>
+    <p class="cool-font">Click the candy to earn points and buy upgrades!</p>
+    <button class="button" onclick="toggleShop()">Open Shop</button>
+
+    <div id="main-game" class="container">
+        <img id="candy" src="https://th.bing.com/th/id/OIP.7QR6s7fz0aQxkLYY8ZeJgwHaHa?w=193&h=193&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Candy" onclick="incrementScore()">
+        <p id="score">Score: 0</p>
+    </div>
+
+    <div id="shop" class="shop-section">
+        <h2 class="cool-font">Shop</h2>
+        <div class="shop-container" id="shop-container">
+            <!-- Dynamically filled with upgrades -->
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio autoplay loop>
+        <source src="your-audio-file-url.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        let score = 0;
+        let autoClickers = 0;
+        let doubleClick = false;
+        let factory = 0;
+        let mine = 0;
+        let store = 0;
+
+        let upgradeCosts = [];
+        let upgradeLimits = [5000, 5000, 5000, 5000, 5000];
+        let upgradeCounts = [0, 0, 0, 0, 0];
+        let upgradeNames = [
+            "Auto Clicker", 
+            "Double Clicker", 
+            "Candy Factory", 
+            "Candy Mine", 
+            "Candy Store"
+        ];
+
+        // Initialize 5 upgrades with costs (for simplicity)
+        for (let i = 0; i < upgradeNames.length; i++) {
+            upgradeCosts.push(Math.floor(Math.pow(i + 1, 1.5) * 100));  // Exponentially increasing cost
+        }
+
+        // Toggle between the game view and the shop
+        function toggleShop() {
+            let mainGame = document.getElementById("main-game");
+            let shop = document.getElementById("shop");
+            if (mainGame.style.display === "none") {
+                mainGame.style.display = "inline-block";
+                shop.style.display = "none";
+            } else {
+                mainGame.style.display = "none";
+                shop.style.display = "inline-block";
+            }
+        }
+
+        function incrementScore() {
+            score += doubleClick ? 2 : 1;
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById("score").innerText = "Score: " + score;
+            for (let i = 0; i < upgradeCounts.length; i++) {
+                document.getElementById("upgradeCount" + i).innerText = upgradeCounts[i];
+            }
+        }
+
+        function buyUpgrade(upgradeId) {
+            if (score >= upgradeCosts[upgradeId] && upgradeCounts[upgradeId] < upgradeLimits[upgradeId]) {
+                score -= upgradeCosts[upgradeId];
+                upgradeCounts[upgradeId]++;
+                updateScore();
+
+                // Apply upgrade effect
+                switch (upgradeId) {
+                    case 0: // Auto Clicker
+                        setInterval(() => {
+                            score += autoClickers;
+                            updateScore();
+                        }, 4500);  // Changed to 4.5 seconds
+                        break;
+                    case 1: // Double Click
+                        doubleClick = true;
+                        break;
+                    case 2: // Candy Factory
+                        setInterval(() => {
+                            score += 100;
+                            updateScore();
+                        }, 2000);
+                        break;
+                    case 3: // Candy Mine
+                        setInterval(() => {
+                            score += 250;
+                            updateScore();
+                        }, 3000);
+                        break;
+                    case 4: // Candy Store
+                        setInterval(() => {
+                            score += 500;
+                            updateScore();
+                        }, 4000);
+                        break;
+                }
+
+                // Increase the cost for next purchase
+                upgradeCosts[upgradeId] = Math.floor(upgradeCosts[upgradeId] * 1.7);  // More expensive next time
+            }
+        }
+
+        // Add all upgrades to the shop container
+        function addUpgradesToShop() {
+            let shopContainer = document.getElementById("shop-container");
+
+            for (let i = 0; i < upgradeNames.length; i++) {
+                let upgradeDiv = document.createElement("div");
+                upgradeDiv.classList.add("shop-item");
+                
+                let button = document.createElement("button");
+                button.classList.add("button");
+                button.textContent = `Buy ${upgradeNames[i]} (Cost: ${upgradeCosts[i]})`;
+                button.onclick = function() { buyUpgrade(i); };
+
+                let countText = document.createElement("p");
+                countText.innerHTML = `Owned: <span id="upgradeCount${i}">0</span>`;
+                
+                upgradeDiv.appendChild(button);
+                upgradeDiv.appendChild(countText);
+                shopContainer.appendChild(upgradeDiv);
+            }
+        }
+
+        // Call the function to populate the shop when the page loads
+        addUpgradesToShop();
+    </script>
+</body>
+</html>
